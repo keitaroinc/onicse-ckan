@@ -1,7 +1,7 @@
 ###################
 ### Extensions ####
 ###################
-FROM ghcr.io/keitaroinc/ckan:2.11.2-xloader as extbuild
+FROM ghcr.io/keitaroinc/ckan:2.11.2 as extbuild
 
 # Switch to the root user
 USER root
@@ -37,7 +37,7 @@ RUN wget https://github.com/mikefarah/yq/releases/download/v4.25.1/yq_linux_amd6
 ###########
 ## MAIN ###
 ###########
-FROM ghcr.io/keitaroinc/ckan:2.11.2-xloader
+FROM ghcr.io/keitaroinc/ckan:2.11.2
 
 ENV APP_DIR=/srv/app
 ENV EXT_WHEEL_DIR=${APP_DIR}/ext_wheels
