@@ -1,21 +1,23 @@
 ---
-# services:
-#   nginx:
-#     container_name: ${NGINX_CONTAINER_NAME}
-#     build:
-#       context: ${PWD}/services/nginx/image
-#     networks:
-#       - frontend
-#       - backend
-#     depends_on:
-#       ckan:
-#         condition: service_healthy
-#     env_file:
-#       - ${PWD}/config/nginx/.env
-#     ports:
-#       - "0.0.0.0:${NGINX_PORT}:${NGINX_PORT}"
-#       - "0.0.0.0:${NGINX_SSLPORT}:${NGINX_SSLPORT}"
-#     volumes:
-#       - ./config:/config
-#       - /etc/letsencrypt:/etc/letsencrypt:ro
-#       - /tmp/acme_challenge:/tmp/acme_challenge 
+services:
+  nginx:
+    profiles:
+      - nginx
+    container_name: ${NGINX_CONTAINER_NAME}
+    build:
+      context: ${PWD}/services/nginx/image
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      ckan:
+        condition: service_healthy
+    env_file:
+      - ${PWD}/config/nginx/.env
+    ports:
+      - "0.0.0.0:${NGINX_PORT}:${NGINX_PORT}"
+      - "0.0.0.0:${NGINX_SSLPORT}:${NGINX_SSLPORT}"
+    volumes:
+      - ./config:/config
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /tmp/acme_challenge:/tmp/acme_challenge 

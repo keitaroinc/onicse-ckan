@@ -37,11 +37,11 @@ include:
       - config/redis/.env
       - config/.global-env
     project_directory: .
-  # - path: services/nginx/nginx.yaml
-  #   env_file:
-  #     - config/nginx/.env
-  #     - config/.global-env
-  #   project_directory: .
+  - path: services/nginx/nginx.yaml
+    env_file:
+      - config/nginx/.env
+      - config/.global-env
+    project_directory: .
 
 networks:
   frontend:
