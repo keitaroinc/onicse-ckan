@@ -1,6 +1,8 @@
 ---
 services:
   nginx:
+    profiles:
+      - nginx
     container_name: ${NGINX_CONTAINER_NAME}
     build:
       context: ${PWD}/services/nginx/image

@@ -2,45 +2,93 @@
 
 This repository contains the Docker Compose setup for deploying CKAN along with its dependencies, including PostgreSQL, Solr, Redis, and CKAN workers.
 
+## System Requirements
+Before setting up CKAN, ensure your system meets the following requirements:
+ - Operating System: Linux (Ubuntu recommended)
+ - RAM: At least 4GB recommended
+ - Docker: Install Docker from [official docker documentation](https://docs.docker.com/engine/install/ubuntu/)
+ - Docker compose: Install docker compose from [official docker documentation](https://docs.docker.com/compose/install/)
 ## Folder Structure
 
 ```
 /compose/
-├── config/
-│   ├── ckan/
-│   │   └── .env
-│   ├── db/
-│   │   └── .env
-│   ├── nginx/
-│   │   └── .env
-│   ├── redis/
-│   │   └── .env
-│   ├── solr/
-│   │   └── .env
-│   └── .global-env
-├── services/
-│   ├── ckan/
-│   │   ├── ckan.yaml
-│   │   └── image/
-│   ├── ckan-workers/
+├── config/                   # Configuration files for all services
+│   ├── ckan/                 # CKAN-specific environment configurations
+│   │   └── .env              # CKAN environment variables
+│   ├── db/                   # PostgreSQL configurations
+│   │   └── .env              # Database environment variables
+│   ├── nginx/                # Nginx environment configurations
+│   │   └── .env              # Nginx environment variables
+│   ├── redis/                # Redis configurations
+│   │   └── .env              # Redis environment variables
+│   ├── solr/                 # Solr search configurations
+│   │   └── .env              # Solr environment variables
+│   └── .global-env           # Global environment variables
+├── services/                 # Service definitions
+│   ├── ckan/                 # CKAN application service
+│   │   ├── ckan.yaml         # CKAN service configuration
+│   │   └── image/            # CKAN Docker image setup
+│   ├── ckan-workers/         # CKAN worker services for background jobs
 │   │   ├── ckan-worker-default.yaml
 │   │   ├── ckan-worker-priority.yaml
 │   │   └── ckan-worker-bulk.yaml
-│   ├── db/
-│   │   ├── db.yaml
-│   │   └── image/
-│   ├── nginx/
-│   │   ├── nginx.yaml
-|   |   └── image/
-│   ├── redis/
-│   │   └── redis.yaml
-│   ├── solr/
-│   │   ├── solr.yaml
-|   |   └── image/
-└── docker-compose.yml
+│   ├── db/                   # Database service
+│   │   ├── db.yaml           # PostgreSQL service configuration
+│   │   └── image/            # PostgreSQL Docker image setup
+│   ├── nginx/                # Web server service
+│   │   ├── nginx.yaml        # Nginx configuration
+│   │   └── image/            # Nginx Docker image setup
+│   ├── redis/                # Redis service
+│   │   └── redis.yaml        # Redis configuration
+│   ├── solr/                 # Solr service
+│   │   ├── solr.yaml         # Solr service configuration
+│   │   └── image/            # Solr Docker image setup
+└── docker-compose.yml        # Docker Compose file
+├── README.md                 # Documentation file for the repository
 ```
+## Getting Started
+### Clone the repository
+```sh
+git clone https://github.com/keitaroinc/onicse-ckan.git
+cd compose
+```
+### Understanding the docker-compose.yml file
+The docker-compose.yml file defines the CKAN environment and includes multiple service configurations:
+```sh
+include:
+  - path: services/ckan/ckan.yaml
+    env_file:
+      - config/ckan/.env
+      - config/.global-env
+    project_directory: .
+  - path: services/ckan-workers/ckan-worker-default.yaml
+    env_file:
+      - config/ckan/.env
+      - config/.global-env
+    project_directory: .
+```
+Key Components
+ - include: Includes service definitions from separate YAML files for better modularity.
+ - env_file: Loads environment variables from .env files for each service.
+ - networks: Defines isolated networks for frontend and backend communication.
+### Start the containers
+***For local deployment nginx is not needed site can be accessed on localhost***
+```sh
+docker compose up -d
+```
+ To see if the containers are running
+```sh
+docker ps 
+```
+### Access the application
+ Open web browser and go to http://localhost:5000
+### Stopping the containers
+```sh
+docker compose down
+```
+This stops and removes the containers but keeps the data.
+# Deploying to production
 
-## Changing CKAN and PostgreSQL Passwords
 ***Change passwords for ckan user and postgres before deploying to production environment***
 
 To change the CKAN and PostgreSQL passwords, follow these steps:
@@ -113,8 +161,10 @@ Before building the docker containers and deploying CKAN with Nginx for a produc
    docker compose build --no-cache
    ```
 3. **Start the Docker containers:**
+
+   ***For production nginx is needed and to start the containers use --profile:***
    ```sh
-   docker compose up -d
+   docker compose --profile nginx up -d 
    ```
 
 3. **Check to ensure all services are running correctly:**
@@ -131,4 +181,17 @@ Before building the docker containers and deploying CKAN with Nginx for a produc
 
    Open your web browser and navigate to `https://prod-domain.com` to access the CKAN instance.
 
+## Troubleshooting
+### Port already in use?
+Change the port mapping e.g., 9090:80 instead of 8080:80.
+
+### Permission issues:
+Try running commands with sudo
+```sh
+sudo docker compose up -d
+```
+### Check logs
+```sh
+docker logs containerName
+```
 By following these steps, you can build, deploy, and manage the CKAN infrastructure using Docker Compose.
