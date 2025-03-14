@@ -71,6 +71,72 @@ Key Components
  - include: Includes service definitions from separate YAML files for better modularity.
  - env_file: Loads environment variables from .env files for each service.
  - networks: Defines isolated networks for frontend and backend communication.
+
+## Understanding the Configuration Files
+### ```.yaml``` Files in the ```services``` Folder
+Each service has a corresponding ```.yaml``` file that defines how the container should be built, configured, and run. These files specify:
+- Image: The Docker image used for the service.
+- Environment Variables: The ```.env``` files that provide configurations.
+- Volumes: Files or directories that should be mounted in the container.
+- Networks: How services communicate with each other.
+
+```ckan.yaml``` defines the main CKAN service, linking it to PostgreSQL, Solr, and Redis.
+### Explanation for ```ckan.yaml``` as example:
+```ckan.yaml``` defines the main CKAN service, linking it to PostgreSQL, Solr, and Redis.
+- ```build.context```: Specifies the build directory for the CKAN image.
+
+- ```networks```: Connects CKAN to both frontend and backend networks.
+- ```depends_on```: Ensures CKAN starts only after PostgreSQL (db) and Solr (solr) are healthy and allows restarting if they fail.
+- ```ports```: Exposes CKAN on the host machine, using the environment variable ${CKAN_PORT}.
+- ```env_file```: Loads environment variables from .env files in config/db/ and config/ckan/.
+- ```volumes```: Mounts ckan_data as a persistent storage location for CKAN data.
+### ```.env``` Files in the ```config``` Folder
+These files store environment variables used by different services to configure settings like credentials, connection details, and system parameters.
+- ```ckan/.env``` – Contains CKAN-specific configurations (e.g., admin credentials, site URL).
+
+- ```db/.env``` – Stores PostgreSQL credentials (e.g., database name, user, password).
+- ```nginx/.env``` – Stores Nginx settings.
+- ```redis/.env``` – Configures Redis.
+- ```solr/.env``` – Configures Solr.
+- ```.global-env``` – Contains environment variables shared across multiple services.
+
+## Managing Environment Secrets
+For production deployments, you should create your own ```.env``` files with sensitive data such as database credentials and API keys. **Do not commit these files to the repository**. Instead, add them to ```.gitignore``` to prevent accidental exposure:
+
+- Create your own ```.env``` files manually
+```sh
+cp config/ckan/.env config/ckan/.env-prod
+cp config/db/.env config/ckan/.env-prod
+```
+Change the configuration in services to reference the newly created ```.env-prod``` file
+
+For ```ckan.yaml```, ```ckan-worker-bulk.yaml```, ```ckan-worker-default.yaml```, ```ckan-worker-priority.yaml``` change these lines:
+```sh
+env_file:
+   - ${PWD}/config/db/.env
+   - ${PWD}/config/ckan/.env
+```
+to 
+```sh
+env_file:
+   - ${PWD}/config/db/.env-prod
+   - ${PWD}/config/ckan/.env-prod
+```
+For ```db.yaml``` change this:
+```sh
+env_file:
+   - ${PWD}/config/db/.env
+```
+to this
+```sh
+env_file:
+   - ${PWD}/config/db/.env-prod
+```
+Add ```.env``` files to ```.gitignore``` to prevent committing sensitive data:
+```sh
+echo "config/**/*.env-prod" >> .gitignore
+```
+
 ### Start the containers
 ***For local deployment nginx is not needed site can be accessed on localhost***
 ```sh
@@ -158,7 +224,7 @@ Before building the docker containers and deploying CKAN with Nginx for a produc
 2. **Build the Docker containers:**
 
    ```sh
-   docker compose build --no-cache
+   docker compose build
    ```
 3. **Start the Docker containers:**
 
@@ -166,6 +232,10 @@ Before building the docker containers and deploying CKAN with Nginx for a produc
    ```sh
    docker compose --profile nginx up -d 
    ```
+   #### Explanation:
+   - ```--profile nginx```: Starts all services plus the nginx service, which is required for production.
+
+   - ```-d``` (detached mode): Starts the services defined in a docker-compose.yml file in detached mode, meaning they run in the background. This allows the user to continue using the terminal for other tasks without the output of the containers cluttering the screen.
 
 3. **Check to ensure all services are running correctly:**
 
