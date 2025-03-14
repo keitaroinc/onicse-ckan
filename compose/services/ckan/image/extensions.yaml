@@ -1,2 +1,6 @@
 default_extensions: "envvars stats text_view image_view datastore"
 extensions:
+  - url: https://github.com/keitaroinc/ckanext-onicse-theme
+    branch_tag: main
+    requirements: requirements.txt
+    name: onicse_theme
