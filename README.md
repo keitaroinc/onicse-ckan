@@ -10,10 +10,9 @@ This repository contains the Docker Compose setup for deploying CKAN along with 
 5. [Deploying CKAN Locally](#deploy-ckan-locally)
 6. [Deploying to Production](#deploying-to-production)
 7. [CKAN Plugins Management](#ckan-plugins-management)
-8. [Networking and Load Balancing](#networking-and-loadbalancing)
-9. [Creating Backups](#creating-backups)
-10. [Troubleshooting](#troubleshooting)
-11. [Useful Links](#useful-links-for-docker)
+8. [Creating Backups](#creating-backups)
+9. [Troubleshooting](#troubleshooting)
+10. [Useful Links](#useful-links-for-docker)
 
 ## System Requirements
 
@@ -321,7 +320,7 @@ Before building the docker containers and deploying CKAN with Nginx for a produc
 
 ## Optional Steps
 
-3. **Set up Load Balancing:**
+3. **Set up Nginx:**
 
     If you already have a web proxy or load balancer, you can configure it to proxy pass requests to `http://localhost:5000` without using the built-in Nginx service. This is useful if you prefer centralized management of your proxy/load balancer infrastructure.
 
