@@ -255,32 +255,7 @@ docker compose down -v
 
 ## Preparing environment
 
-**_Change passwords for ckan user, postgres and datastore before deploying to production environment_**
-
-To change the CKAN and PostgreSQL passwords, follow these steps:
-
-### CKAN Password
-
-1. **Open the CKAN `compose/config/ckan/.env` file and update following env variable:**
-
-   ```properties
-   CKAN_SYSADMIN_PASSWORD=new_password
-   ```
-
-2. **Save and close the file.**
-
-### PostgreSQL and Datastore Password
-
-1. **Open the PostgreSQL `compose/config/db/.env` file and update following env variables:**
-
-   ```properties
-   POSTGRES_PASSWORD=new_password
-   DATASTORE_READONLY_PASSWORD=new_password
-   ```
-
-2. **Save and close the file.**
-
-## Managing Environment Secrets
+### Managing Environment Secrets
 
 For production deployments, create your own `.env` files with sensitive data such as database credentials and API keys. **Do not commit these files to the repository**. Instead, add them to `.gitignore` to prevent accidental exposure:
 
@@ -304,9 +279,74 @@ Add `.env-prod` file to `.gitignore` to prevent committing sensitive data:
 ```sh
 echo "config/**/*.env-prod" >> .gitignore
 ```
+### Updating Environment Variables for Production
+Before deploying CKAN to production, update the necessary environment variables to match your organization's requirements.
 
+`CKAN_SYSADMIN_NAME` variable must remain `sysadmin` due to the xloader API key dependency.
 
-## Set production domain
+Change ```CKAN_SITE_ID``` to a unique identifier for your instance:
+```properties
+CKAN_SITE_ID=my_ckan_instance
+```
+CKAN plugins extend functionality. You can enable or disable plugins by modifying the `CKAN__PLUGINS` variable.
+```properties
+CKAN__PLUGINS=envvars activity image_view text_view datatables_view datastore xloader onicse_theme your_custom_plugin
+```
+Update CKAN System Administrator Email, you can change the email to match your organization’s domain.
+```properties
+CKAN_SYSADMIN_EMAIL=admin@yourdomain.com
+```
+If you have an SMTP server, update the email settings to ensure that CKAN can send emails (e.g., password resets, user notifications).
+```properties
+CKAN_SMTP_SERVER=smtp.corporateict.domain:25
+CKAN_SMTP_STARTTLS=True
+CKAN_SMTP_USER=your-smtp-user
+CKAN_SMTP_PASSWORD=your-smtp-password
+CKAN_SMTP_MAIL_FROM=ckan@yourdomain.com
+```
+**Change passwords for ckan user, postgres and datastore**
+
+To change the CKAN and PostgreSQL passwords, follow these steps:
+
+### CKAN Password
+
+1. **Open the CKAN `compose/config/ckan/.env` file and update following env variable:**
+
+   ```properties
+   CKAN_SYSADMIN_PASSWORD=new_password
+   ```
+
+### PostgreSQL and Datastore Password
+
+1. **Open the PostgreSQL `compose/config/db/.env` file and update following env variables:**
+
+   ```properties
+   POSTGRES_PASSWORD=new_password
+   DATASTORE_READONLY_PASSWORD=new_password
+   ```
+
+### JWT, Beaker Session Secret, and XLoader API Key Generation
+
+When the CKAN container starts it automatically generates several critical secrets using the CKAN base docker image script [start_ckan.sh](https://github.com/keitaroinc/docker-ckan/blob/master/images/ckan/2.11/setup/app/start_ckan.sh):
+
+- **JWT_SECRET**:
+  A random secret key is generated for signing and verifying JSON Web Tokens (JWTs). This key ensures that the JWT tokens used for authentication are secure.
+- **BEAKER_SESSION_SECRET**:
+  A random secret is generated for Beaker, which manages session data. This secret secures the session cookies and helps prevent tampering.
+- **XLOADER_API_KEY**:
+  A random API key is generated for the xloader functionality in CKAN. This key is used to authenticate API calls made to the xloader.
+
+> [!NOTE]: Although these secrets are auto-generated, for production deployments you can override them with your own secure values in your .env-prod file for consistency and control.
+
+- To change the secrets look for these env variables in the `.env` file:
+
+```properties
+CKAN___API_TOKEN__JWT__ENCODE__SECRET=string:CHANGE_ME
+CKAN___API_TOKEN__JWT__DECODE__SECRET=string:CHANGE_ME
+CKAN___BEAKER__SESSION__SECRET=CHANGE_ME
+```
+For more information on API token settings check CKAN official [documentation](https://docs.ckan.org/en/latest/maintaining/configuration.html#api-token-settings)
+### Change production domain
 
 Before building the docker containers and deploying CKAN with Nginx for a production environment, follow these steps to configure the public domain:
 
@@ -316,8 +356,28 @@ Before building the docker containers and deploying CKAN with Nginx for a produc
    CKAN_SITE_URL=https://prod-domain.com
 ```
 
-2. **Save and close the file.**
+### (Optional) Using an External Database with CKAN
+If you are using an external PostgreSQL database instead of the one provided in the Docker setup, you must update the **database connection URLs** accordingly.
 
+**Modify these variables to point to your external PostgreSQL instance:**
+```properties
+POSTGRES_PASSWORD=new_password
+CKAN_SQLALCHEMY_URL=postgresql://ckan:${POSTGRES_PASSWORD}@your-db-host:5432/ckan
+CKAN_DATASTORE_WRITE_URL=postgresql://ckan:${POSTGRES_PASSWORD}@your-db-host:5432/datastore
+CKAN_DATASTORE_READ_URL=postgresql://datastore_ro:${DATASTORE_READONLY_PASSWORD}@your-db-host:5432/datastore
+```
+  - Replace ``your-db-host`` with the hostname or IP address of your external database.
+
+**Disable Internal PostgreSQL Service in Docker Compose**
+
+- If using an external database, remove the `db` service from docker-compose.yaml
+```properties
+- path: services/db/db.yaml
+  env_file:
+    - config/db/.env
+    - config/.global-env
+  project_directory: .
+```
 ## Optional Steps
 
 3. **Set up Nginx:**
@@ -398,9 +458,6 @@ Whether you use an external proxy or the built-in Nginx, you need valid SSL cert
 
    }
    ```
-
-5. **Save and close the file.**
-
     By following these steps, you can either integrate your existing proxy/load balancing solution or use the built-in Nginx service with your own SSL certificates, ensuring secure, efficient routing of traffic to your CKAN instance.
 
 # Building and deploying Docker setup
@@ -497,27 +554,6 @@ docker volume rm volume_name
 ```
 
 Replace volume_name with the actual volume name.
-
-## JWT, Beaker Session Secret, and XLoader API Key Generation
-
-When the CKAN container starts it automatically generates several critical secrets using the CKAN base docker image script [start_ckan.sh](https://github.com/keitaroinc/docker-ckan/blob/master/images/ckan/2.11/setup/app/start_ckan.sh):
-
-- **JWT_SECRET**:
-  A random secret key is generated for signing and verifying JSON Web Tokens (JWTs). This key ensures that the JWT tokens used for authentication are secure.
-- **BEAKER_SESSION_SECRET**:
-  A random secret is generated for Beaker, which manages session data. This secret secures the session cookies and helps prevent tampering.
-- **XLOADER_API_KEY**:
-  A random API key is generated for the xloader functionality in CKAN. This key is used to authenticate API calls made to the xloader.
-
-> [!NOTE]: Although these secrets are auto-generated, for production deployments you can override them with your own secure values in your .env-prod file for consistency and control.
-
-- To change the secrets look for these env variables in the `.env` file:
-
-```properties
-CKAN___API_TOKEN__JWT__ENCODE__SECRET=
-CKAN___API_TOKEN__JWT__DECODE__SECRET=
-CKAN___BEAKER__SESSION__SECRET=
-```
 
 ## CKAN Plugins Management
 
