@@ -224,7 +224,7 @@ These files store environment variables used by different services to configure 
 docker compose build
 docker compose up -d
 ```
-See [Troubleshooting](#per) for permission issues, or check docker [official documentation](https://docs.docker.com/engine/install/linux-postinstall/) to manage docker as a non-root user.
+See [Troubleshooting](#permission-issues) for permission issues, or check docker [official documentation](https://docs.docker.com/engine/install/linux-postinstall/) to manage docker as a non-root user.
 
 To see if the containers are running
 
