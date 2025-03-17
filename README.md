@@ -56,7 +56,7 @@ Before setting up CKAN, ensure your system meets the following requirements:
 
 ```sh
 git clone https://github.com/keitaroinc/onicse-ckan.git
-cd compose
+cd onicse-ckan/compose
 ```
 
 ### Understanding the docker-compose.yml file
@@ -414,6 +414,7 @@ CKAN___BEAKER__SESSION__SECRET=
 **_For local deployment nginx is not needed site can be accessed on localhost_**
 
 ```sh
+docker compose build
 docker compose up -d
 ```
 
