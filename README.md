@@ -192,6 +192,8 @@ docker compose up -d
 
 This ensures the new port configuration is applied.
 
+> **_NOTE:_** If for some reason you get an error on build, run ```docker compose pull``` to be up to date with the latest images of keitaro ckan image
+
 ### `.global-env` file
 
 In the `.global-env` file you can change the CKAN and REDIS version, which is applied anywhere in the setup where it is used
