@@ -192,7 +192,12 @@ docker compose up -d
 
 This ensures the new port configuration is applied.
 
-> **_NOTE:_** If for some reason you get an error on build, run ```docker compose pull``` to be up to date with the latest images of keitaro ckan image
+#### Error while building CKAN image
+When you build the image and get greeted with an error on the build of the CKAN image with:
+```
+Error: Invalid value for 'CONFIG_FILEPATH': Path '/app/production.ini' does not exist.
+```
+This is because there are some changes in the docker image of CKAN on the remote registry. Run ```docker compose pull``` to be up to date with the latest keitaro CKAN image.
 
 ### `.global-env` file
 
