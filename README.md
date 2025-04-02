@@ -192,6 +192,13 @@ docker compose up -d
 
 This ensures the new port configuration is applied.
 
+#### Error while building CKAN image
+When you build the image and get greeted with an error on the build of the CKAN image with:
+```
+Error: Invalid value for 'CONFIG_FILEPATH': Path '/app/production.ini' does not exist.
+```
+This is because there are some changes in the Docker image of CKAN on the remote registry. Run ```docker compose pull``` to be up to date with the latest Keitaro CKAN image.
+
 ### `.global-env` file
 
 In the `.global-env` file you can change the CKAN and REDIS version, which is applied anywhere in the setup where it is used
@@ -220,6 +227,11 @@ These files store environment variables used by different services to configure 
 
 **_For local deployment nginx is not needed site can be accessed on localhost_**
 
+> [!NOTE]:Always pull latest changes from git repository before building docker images
+```sh
+git pull
+```
+Build and run CKAN deployment
 ```sh
 docker compose build
 docker compose up -d
@@ -284,10 +296,19 @@ Before deploying CKAN to production, update the necessary environment variables 
 
 `CKAN_SYSADMIN_NAME` variable must remain `sysadmin` due to the xloader API key dependency.
 
-Change ```CKAN_SITE_ID``` to a unique identifier for your instance:
+Change ```CKAN__SITE_ID``` to a unique identifier for your instance:
 ```properties
-CKAN_SITE_ID=my_ckan_instance
+CKAN__SITE_ID=my_ckan_instance
 ```
+Change ```CKAN__SITE_TITLE``` to set the name of the site, as displayed in the CKAN web interface.
+```properties
+CKAN__SITE_TITLE="ONICSE"
+```
+Change ```CKAN__SITE_DESCRIPTION```, this variable is for a description, or tag line for the site, as displayed in the header of the CKAN web interface.
+```properties
+CKAN__SITE_DESCRIPTION="Observatoire National Sur Les Incidences Des Émissions De Contaminants Sur La Santé Et L'environnement"
+```
+
 CKAN plugins extend functionality. You can enable or disable plugins by modifying the `CKAN__PLUGINS` variable.
 ```properties
 CKAN__PLUGINS=envvars activity image_view text_view datatables_view datastore xloader onicse_theme your_custom_plugin
