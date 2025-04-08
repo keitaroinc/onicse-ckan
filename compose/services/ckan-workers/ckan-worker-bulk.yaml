@@ -1,7 +1,8 @@
 ---
 services:
   ckan-worker-bulk:
-    image: ghcr.io/keitaroinc/ckan:${CKAN_VERSION}
+    build:
+      context: ${PWD}/services/ckan/image
     networks:
       - frontend
       - backend
