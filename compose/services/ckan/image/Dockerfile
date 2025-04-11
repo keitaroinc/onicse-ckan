@@ -28,6 +28,9 @@ RUN echo ${CKAN__PLUGINS}
 # Switch to the root user
 USER root 
 
+RUN apk update
+RUN apk add xmlsec
+
 # Get artifacts from build stages 
 COPY --from=extbuild /wheels ${EXT_WHEEL_DIR}
 
