@@ -471,6 +471,7 @@ Whether you use an external proxy or the built-in Nginx, you need valid SSL cert
        server_name  yourdomain.com;
        ssl_certificate /etc/nginx/certs/yourcertificate.crt;
        ssl_certificate_key /etc/nginx/certs/yourprivatekey.key;
+       client_max_body_size 5000M;
 
        location / {
            proxy_pass http://localhost:5000/;
