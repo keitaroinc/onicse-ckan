@@ -1,7 +1,7 @@
 ###################
 ### Extensions ####
 ###################
-FROM ghcr.io/keitaroinc/ckan:2.11.3 AS extbuild
+FROM ghcr.io/keitaroinc/ckan:2.11.4 AS extbuild
 
 # Switch to the root user
 USER root
@@ -18,7 +18,7 @@ RUN ./download-extensions.sh
 ###########
 ## MAIN ###
 ###########
-FROM ghcr.io/keitaroinc/ckan:2.11.3
+FROM ghcr.io/keitaroinc/ckan:2.11.4
 
 ENV APP_DIR=/app
 ENV EXT_WHEEL_DIR=${APP_DIR}/ext_wheels
